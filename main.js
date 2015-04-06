@@ -5,6 +5,7 @@ var fs      = require('fs')
 var app = express()
 //var app_proxy = express()
 // REDIS..
+
 var args = process.argv.slice(2);
 var APP_PORT = args[0];
 var REDIS_PORT = args[1];
@@ -12,7 +13,7 @@ console.log("App port: "+APP_PORT);
 console.log("Redis port: "+REDIS_PORT);
 //var client = redis.createClient(6379, '127.0.0.1', {})
 var client = redis.createClient(REDIS_PORT, '127.0.0.1', {})
-//client.flushdb()
+//client.flushdb();
 ///////////// WEB ROUTES
 
 // Add hook to make it easier to get all visited URLS.
@@ -26,19 +27,6 @@ app.use(function(req, res, next)
 	next(); // Passing the request to the next handler in the stack.
 });
 
-/*app_proxy.use(function(req, res, next)
-{
-	client.rpoplpush("url","url",function(err,value){
-		console.log(value+req.url);
-		//console.log(req.url);
-		//res.send();
-		//client.lpush("recent", req.url);
-		res.redirect(value+req.url);
-		
-		//next();
-	})
-
-})*/
 app.get('/get', function(req, res) {
 client.get("msg", function(err,value){res.send(value)});})
 
@@ -67,6 +55,8 @@ app.get('/meow', function(req, res) {
 		
 		//items.forEach(function (imagedata) 
 		//{			
+			var printl = 'Redis Running on: '+REDIS_PORT+" App on: "+APP_PORT;
+		res.write(printl);
    		res.write("<h1>\n<img src='data:my_pic.jpg;base64,"+imagedata+"'/>");
 		//})
 	
@@ -84,28 +74,8 @@ var server1 = app.listen(APP_PORT, function () {
   //client.lpush("url", "http://"+host+":"+port);
   client.lpush("url", "http://localhost:"+APP_PORT);
 })
-// 2nd HTTP SERVER
-/*var server2 = app.listen(3001, function () {
-
-  var host = server2.address().address
-  var port = server2.address().port
-
-  console.log('Example app listening at http://%s:%s', host, port)
-  client.lpush("url", "http://localhost:"+port);
-  //client.lpush("url", "http://"+host+":"+port);
-})*/
-//Proxy Server
-/*var proxy = app_proxy.listen(3002, function () {
-
-	var host = proxy.address().address
-	var port = proxy.address().port
-
-	console.log('Example app listening at http://%s:%s', host, port)
-
- })*/
-
 app.get('/', function(req, res) {
-  res.send('Redis Running on: '+REDIS_PORT)
+  res.send('Redis Running on--> '+REDIS_PORT+" App on--> "+APP_PORT)
 })
 
 app.get('/set', function(req, res) {
@@ -124,10 +94,6 @@ res.send(value)});
 })
 
 app.get("/switch", function(req,res){
+
 res.redirect("/");	
 })
-
-//app.get('/upload', function(req, res) {
-//client.lrange("recent",0,5,function(err,value){
-//res.send(value)});
-//})
